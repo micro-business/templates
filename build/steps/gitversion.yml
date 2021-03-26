@@ -1,0 +1,14 @@
+parameters:
+  version: "5.x"
+  configFilePath: "$(system.defaultWorkingDirectory)/GitVersion.yml"
+
+steps:
+  - task: gitversion/setup@0
+    displayName: "Setting up GitVersion"
+    inputs:
+      versionSpec: ${{ parameters.version }}
+
+  - task: gitversion/execute@0
+    displayName: "Figure out GitVersion"
+    inputs:
+      configFilePath: ${{ parameters.configFilePath }}

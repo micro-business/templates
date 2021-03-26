@@ -1,0 +1,38 @@
+parameters:
+  version: ""
+  dockerContainerRegistry: ""
+  dockerRepositoryName: ""
+  dockerFilePath: ""
+  dockerBuildContext: ""
+
+steps:
+  - template: steps/gitversion.yml
+  - task: Docker@2
+    displayName: "Build docker image"
+    inputs:
+      repository: ${{ parameters.dockerRepositoryName }}
+      command: "build"
+      Dockerfile: ${{ parameters.dockerFilePath }}
+      buildContext: ${{ parameters.dockerBuildContext }}
+      arguments: "--build-arg VERSION=${{ parameters.version }}"
+      tags: ${{ parameters.version }}
+
+  - task: Docker@2
+    displayName: Docker Login
+    inputs:
+      containerRegistry: ${{ parameters.dockerContainerRegistry }}
+      command: "login"
+
+  - task: Docker@2
+    displayName: "Push docker image"
+    inputs:
+      containerRegistry: ${{ parameters.dockerContainerRegistry }}
+      repository: ${{ parameters.dockerRepositoryName }}
+      command: "push"
+      tags: ${{ parameters.version }}
+
+  - task: Docker@2
+    displayName: Docker Logout
+    inputs:
+      containerRegistry: ${{ parameters.dockerContainerRegistry }}
+      command: "logout"
